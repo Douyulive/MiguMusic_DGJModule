@@ -86,10 +86,10 @@ namespace MiguMusic_DGJModule
                 object searchModules = dgjWindow.GetType().GetProperty("SearchModules", BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public).GetValue(dgjWindow);
                 ObservableCollection<SearchModule> searchModules2 = (ObservableCollection<SearchModule>)searchModules.GetType().GetProperty("Modules", BindingFlags.GetProperty | BindingFlags.Instance | BindingFlags.Public).GetValue(searchModules);
                 SearchModule nullModule = (SearchModule)searchModules.GetType().GetProperty("NullModule", BindingFlags.GetProperty | BindingFlags.Public | BindingFlags.Instance).GetValue(searchModules);
-                SearchModule lwlModule = searchModules2.FirstOrDefault(p => p != nullModule);
-                if (lwlModule != null)
+                SearchModule coelModule = searchModules2.FirstOrDefault(p => p != nullModule);
+                if (coelModule != null)
                 {
-                    Action<string> logHandler = (Action<string>)lwlModule.GetType().GetProperty("_log", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(lwlModule);
+                    Action<string> logHandler = (Action<string>)coelModule.GetType().GetProperty("_log", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(lwlModule);
                     MiguModule.SetLogHandler(logHandler);
                 }
                 searchModules2.Insert(3, MiguModule);
@@ -106,7 +106,7 @@ namespace MiguMusic_DGJModule
     {
         static MiguModule()
         {
-            string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"弹幕姬\plugins\Assembly");
+            string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\plugins\Assembly");
             if (!Directory.Exists(assemblyPath))
             {
                 Directory.CreateDirectory(assemblyPath);
@@ -124,7 +124,7 @@ namespace MiguMusic_DGJModule
             string dllName = args.Name.Split(',')[0];
             if (dllName == "HtmlAgilityPack")
             {
-                string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"弹幕姬\plugins\Assembly");
+                string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\plugins\Assembly");
                 return Assembly.LoadFrom(Path.Combine(assemblyPath, "HtmlAgilityPack.dll"));
             }
             else
