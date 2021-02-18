@@ -1,4 +1,4 @@
-﻿using BilibiliDM_PluginFramework;
+﻿using DouyuDM_PluginFramework;
 using DGJv3;
 using MiguMusic_DGJModule.MiguMusic;
 using System;
@@ -9,6 +9,8 @@ using System.Linq;
 using System.Reflection;
 using System.Windows;
 using SongInfo = DGJv3.SongInfo;
+using Music.SDK.Models;
+using Music.SDK.Models.Enums;
 
 namespace MiguMusic_DGJModule
 {
@@ -19,9 +21,8 @@ namespace MiguMusic_DGJModule
         public PluginMain()
         {
             this.PluginName = "咪咕喵块";
-            try { this.PluginAuth = BiliUtils.GetUserNameByUserId(35744708); }
-            catch { this.PluginAuth = "西井丶"; }
-            this.PluginCont = "847529602@qq.com";
+            this.PluginAuth = "Coel Wu & 西井丶";
+            this.PluginCont = "coelwu78@protonmail.com";
             this.PluginDesc = "使用咪咕音乐平台进行点歌~";
             this.PluginVer = MiguMusicApi.Version;
             base.Start();
@@ -68,10 +69,11 @@ namespace MiguMusic_DGJModule
             try
             {
                 Assembly dgjAssembly = Assembly.GetAssembly(typeof(SearchModule)); //如果没有点歌姬插件，插件的构造方法会抛出异常，无需考虑这里的assembly == null的情况
-                Assembly dmAssembly = Assembly.GetEntryAssembly();
-                Type appType = dmAssembly.ExportedTypes.FirstOrDefault(p => p.FullName == "Bililive_dm.App");
-                ObservableCollection<DMPlugin> Plugins = (ObservableCollection<DMPlugin>)appType.GetField("Plugins", BindingFlags.GetField | BindingFlags.Static | BindingFlags.Public).GetValue(null);
-                DMPlugin dgjPlugin = Plugins.FirstOrDefault(p => p.ToString() == "DGJv3.DGJMain");
+                DMPlugin dgjPlugin = Douyulive_dm.App.Plugins.FirstOrDefault(p => p.GetType() == typeof(DGJMain));
+                if (dgjPlugin == null) // 没有点歌姬
+                {
+                    throw new DllNotFoundException();
+                }
                 object dgjWindow = null;
                 try
                 {
@@ -135,10 +137,8 @@ namespace MiguMusic_DGJModule
 
         public MiguModule()
         {
-            string authorName;
-            try { authorName = BiliUtils.GetUserNameByUserId(35744708); }
-            catch { authorName = "西井丶"; }
-            SetInfo("咪咕音乐", authorName, "847529602@qq.com", MiguMusicApi.Version, "使用咪咕音乐平台进行点歌~");
+            string authorName = "Coel Wu & 西井丶";
+            SetInfo("咪咕音乐", authorName, "coelwu78@protonmail.com", MiguMusicApi.Version, "使用咪咕音乐平台进行点歌~");
             this.GetType().GetProperty("IsPlaylistSupported", BindingFlags.SetProperty | BindingFlags.Public | BindingFlags.Instance).SetValue(this, true); // Enable Playlist Supporting
         }
 
@@ -147,23 +147,31 @@ namespace MiguMusic_DGJModule
             this.GetType().GetProperty("_log", BindingFlags.SetProperty | BindingFlags.NonPublic | BindingFlags.Instance).SetValue(this, logHandler);
         }
 
-        protected override DownloadStatus Download(SongItem item)
+        protected override DownloadStatus Download(SongItem songItem)
         {
             throw new NotImplementedException();
         }
 
-        protected override string GetDownloadUrl(SongItem songInfo)
+        protected override string GetDownloadUrl(SongItem songItem)
         {
-            return MiguMusicApi.GetSongUrl(songInfo.SongId);
+            return MiguMusicApi.GetSongUrl(Convert.ToString(songItem.SongId));
         }
 
-        [Obsolete("Use GetLyricById instead", true)]
-        protected override string GetLyric(SongItem songInfo)
+        protected override string GetLyric(SongItem songItem)
         {
-            throw new NotImplementedException();
+            LyricInfo lyric = null;
+            try
+            {
+                lyric = _GetLyric(Convert.ToString(songItem.SongId));
+            }
+            catch (Exception Ex)
+            {
+                Log($"获取歌词失败了喵:{Ex.Message}");
+            }
+            return lyric?.GetLyricText();
         }
 
-        protected override string GetLyricById(string copyrightId)
+        protected override string GetLyricById(string copyrightId, string albumId = "")
         {
             LyricInfo lyric = null;
             try
@@ -183,7 +191,7 @@ namespace MiguMusic_DGJModule
             if (long.TryParse(keyword, out long id))
             {
                 songs = MiguMusicApi.GetPlaylist(id);
-                return songs.Select(p => new SongInfo(this, p.CopyrightId, p.Name, new string[] { p.Artist }, null)).ToList();
+                return songs.Select(p => new SongInfo(this, PlatformType.MiGuMusic, p.CopyrightId, p.Name, new string[] { p.Artist }, Convert.ToString(p.AlbumId), null)).ToList();
             }
             else
             {
@@ -206,7 +214,7 @@ namespace MiguMusic_DGJModule
                 {
                     Log($"获取歌词失败了喵:{Ex.Message}");
                 }
-                return new SongInfo(this, song.CopyrightId, song.Name, new string[] { song.Artist }, lyric?.GetLyricText());
+                return new SongInfo(this, PlatformType.MiGuMusic, song.CopyrightId, song.Name, new string[] { song.Artist }, Convert.ToString(song.AlbumId), lyric?.GetLyricText());
             }
             catch (Exception Ex)
             {
