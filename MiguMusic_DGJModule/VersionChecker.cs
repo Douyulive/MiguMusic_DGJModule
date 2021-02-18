@@ -166,6 +166,7 @@ namespace MiguMusic_DGJModule
         private string HttpGet(Uri uri)
         {
             HttpWebRequest request = (HttpWebRequest)WebRequest.Create(uri);
+            request.Timeout = 3000;
             //request.AutomaticDecompression = DecompressionMethods.GZip;
             using (HttpWebResponse response = (HttpWebResponse)request.GetResponse())
             using (Stream stream = response.GetResponseStream())
