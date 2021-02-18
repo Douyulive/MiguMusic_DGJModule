@@ -89,7 +89,7 @@ namespace MiguMusic_DGJModule
                 SearchModule coelModule = searchModules2.FirstOrDefault(p => p != nullModule);
                 if (coelModule != null)
                 {
-                    Action<string> logHandler = (Action<string>)coelModule.GetType().GetProperty("_log", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(lwlModule);
+                    Action<string> logHandler = (Action<string>)coelModule.GetType().GetProperty("_log", BindingFlags.GetProperty | BindingFlags.NonPublic | BindingFlags.Instance).GetValue(coelModule);
                     MiguModule.SetLogHandler(logHandler);
                 }
                 searchModules2.Insert(3, MiguModule);
