@@ -106,7 +106,7 @@ namespace MiguMusic_DGJModule
     {
         static MiguModule()
         {
-            string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\plugins\Assembly");
+            string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\Plugins\Assembly");
             if (!Directory.Exists(assemblyPath))
             {
                 Directory.CreateDirectory(assemblyPath);
@@ -124,7 +124,7 @@ namespace MiguMusic_DGJModule
             string dllName = args.Name.Split(',')[0];
             if (dllName == "HtmlAgilityPack")
             {
-                string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\plugins\Assembly");
+                string assemblyPath = Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.Personal), @"斗鱼弹幕姬\Plugins\Assembly");
                 return Assembly.LoadFrom(Path.Combine(assemblyPath, "HtmlAgilityPack.dll"));
             }
             else
